@@ -7,7 +7,6 @@ import morgan from 'morgan';
 import favicon from 'serve-favicon';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
-import httpProxy from 'http-proxy';
 import PrettyError from 'pretty-error';
 import http from 'http';
 import { ConnectedRouter } from 'react-router-redux';
@@ -18,10 +17,8 @@ import { getBundles } from 'react-loadable/webpack';
 import { trigger } from 'redial';
 import config from 'config';
 import createStore from 'redux/create';
-import apiClient from 'helpers/apiClient';
 import Html from 'helpers/Html';
 import routes from 'routes';
-import { createApp } from 'app';
 import getChunks, { waitChunks } from 'utils/getChunks';
 import asyncMatchRoutes from 'utils/asyncMatchRoutes';
 import { ReduxAsyncConnect, Provider } from 'components';
@@ -30,14 +27,9 @@ const chunksPath = path.join(__dirname, '..', 'static', 'dist', 'loadable-chunks
 
 process.on('unhandledRejection', error => console.error(error));
 
-const targetUrl = `http://${config.apiHost}:${config.apiPort}`;
 const pretty = new PrettyError();
 const app = express();
 const server = new http.Server(app);
-const proxy = httpProxy.createProxyServer({
-  target: targetUrl,
-  ws: true
-});
 
 app
   .use(morgan('dev', { skip: req => req.originalUrl.indexOf('/ws') !== -1 }))
@@ -70,45 +62,14 @@ app.use((req, res, next) => {
   return next();
 });
 
-// Proxy to API server
-app.use('/api', (req, res) => {
-  proxy.web(req, res, { target: targetUrl });
-});
-
-app.use('/ws', (req, res) => {
-  proxy.web(req, res, { target: `${targetUrl}/ws` });
-});
-
-server.on('upgrade', (req, socket, head) => {
-  proxy.ws(req, socket, head);
-});
-
-// added the error handling to avoid https://github.com/nodejitsu/node-http-proxy/issues/527
-proxy.on('error', (error, req, res) => {
-  if (error.code !== 'ECONNRESET') {
-    console.error('proxy error', error);
-  }
-  if (!res.headersSent) {
-    res.writeHead(500, { 'content-type': 'application/json' });
-  }
-
-  const json = { error: 'proxy_error', reason: error.message };
-  res.end(JSON.stringify(json));
-});
-
 app.use(async (req, res) => {
   if (__DEVELOPMENT__) {
     // Do not cache webpack stats: the script file would change since
     // hot module replacement is enabled in the development env
     webpackIsomorphicTools.refresh();
   }
-  const providers = {
-    client: apiClient(req),
-    app: createApp(req),
-    restApp: createApp(req)
-  };
   const history = createMemoryHistory({ initialEntries: [req.originalUrl] });
-  const store = createStore({ history, helpers: providers });
+  const store = createStore({ history });
 
   function hydrate() {
     res.write('<!doctype html>');
@@ -122,7 +83,6 @@ app.use(async (req, res) => {
   try {
     const { components, match, params } = await asyncMatchRoutes(routes, req.originalUrl);
     await trigger('fetch', components, {
-      ...providers,
       store,
       match,
       params,
@@ -133,9 +93,9 @@ app.use(async (req, res) => {
     const modules = [];
     const component = (
       <Loadable.Capture report={moduleName => modules.push(moduleName)}>
-        <Provider store={store} {...providers}>
+        <Provider store={store}>
           <ConnectedRouter history={history}>
-            <ReduxAsyncConnect routes={routes} store={store} helpers={providers}>
+            <ReduxAsyncConnect routes={routes} store={store}>
               {renderRoutes(routes)}
             </ReduxAsyncConnect>
           </ConnectedRouter>
@@ -173,7 +133,6 @@ app.use(async (req, res) => {
       if (err) {
         console.error(err);
       }
-      console.info('----\n==> ✅  %s is running, talking to API server on %s.', config.app.title, config.apiPort);
       console.info('==> 💻  Open http://%s:%s in a browser to view the app.', config.host, config.port);
     });
   } else {

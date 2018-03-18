@@ -151,7 +151,6 @@ var webpackConfig = module.exports = {
       __CLIENT__: true,
       __SERVER__: false,
       __DEVELOPMENT__: true,
-      __DEVTOOLS__: true  // <-------- DISABLE redux-devtools HERE
     }),
 
     webpackIsomorphicToolsPlugin.development(),

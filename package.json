@@ -8,28 +8,21 @@
   "version": "0.9.0",
   "main": "bin/server.js",
   "scripts": {
-    "start": "concurrently --kill-others \"npm run start-prod\" \"npm run start-prod-api\"",
+    "start": "concurrently --kill-others \"npm run start-prod\"",
     "start-prod": "bnr start-prod",
-    "start-prod-api": "bnr start-prod-api",
-    "dev": "concurrently --kill-others \"npm run watch-client\" \"npm run start-dev\" \"npm run start-dev-api\"",
+    "dev": "concurrently --kill-others \"npm run watch-client\" \"npm run start-dev\"",
     "start-dev": "bnr start-dev",
-    "start-dev-api": "bnr start-dev-api",
     "watch-client": "bnr watch-client",
     "build": "bnr build",
     "build-dlls": "webpack --colors --display-error-details --config webpack/vendor.config.js",
     "postinstall": "concurrently \"npm run build\" \"npm run build-dlls\" \"node semantic-fix.js\"",
     "precommit": "lint-staged",
-    "prettier": "prettier-eslint --write --eslint-config-path .eslintrc './+(src|api)/**/*.js'",
-    "lint": "eslint -c .eslintrc api src --fix",
-    "test": "bnr test",
-    "test-node": "bnr test-node",
-    "lighthouse-report": "lighthouse http://localhost:8080 --view",
-    "docker-build": ". ./docker/build.sh",
-    "docker-dev": ". ./docker/run.dev.sh",
-    "docker-prod": ". ./docker/run.prod.sh"
+    "prettier": "prettier-eslint --write --eslint-config-path .eslintrc './+(src)/**/*.js'",
+    "lint": "eslint -c .eslintrc src --fix",
+    "lighthouse-report": "lighthouse http://localhost:8080 --view"
   },
   "lint-staged": {
-    "+(src|api)/**/*.js": [
+    "+(src)/**/*.js": [
       "prettier-eslint --write --eslint-config-path .eslintrc",
       "eslint -c .eslintrc",
       "git add"
@@ -45,14 +38,6 @@
         "APIPORT": 3030
       }
     },
-    "start-prod-api": {
-      "command": "node ./bin/api.js",
-      "env": {
-        "NODE_PATH": "./api",
-        "NODE_ENV": "production",
-        "APIPORT": 3030
-      }
-    },
     "start-dev": {
       "command": "node ./bin/server.js",
       "env": {
@@ -61,14 +46,6 @@
         "PORT": 3000,
         "APIPORT": 3030,
         "WEBPACK_DLLS": 1
-      }
-    },
-    "start-dev-api": {
-      "command": "node ./bin/api.js",
-      "env": {
-        "NODE_PATH": "./api",
-        "NODE_ENV": "development",
-        "APIPORT": 3030
       }
     },
     "watch-client": {
@@ -87,23 +64,10 @@
       "env": {
         "NODE_ENV": "production"
       }
-    },
-    "test": {
-      "command": "jest src --debug",
-      "env": {
-        "NODE_PATH": "src"
-      }
-    },
-    "test-node": {
-      "command": "jest api",
-      "env": {
-        "NODE_PATH": "api"
-      }
     }
   },
   "dependencies": {
     "async": "^2.1.4",
-    "axios": "^0.17.0",
     "babel-core": "^6.26.0",
     "babel-plugin-add-module-exports": "^0.2.1",
     "babel-plugin-dynamic-import-node": "^1.1.0",
@@ -120,13 +84,7 @@
     "cookie-parser": "^1.4.3",
     "express": "^4.15.4",
     "express-session": "^1.15.5",
-    "feathers": "^2.0.3",
-    "feathers-errors": "^2.9.1",
-    "feathers-hooks": "^2.0.1",
-    "feathers-hooks-common": "^3.7.1",
-    "feathers-nedb": "^3.0.0",
-    "feathers-rest": "^1.7.3",
-    "feathers-socketio": "^2.0.0",
+    "firebase": "^4.11.0",
     "history": "^4.7.2",
     "http-proxy": "^1.16.2",
     "is-promise": "^2.1.0",
@@ -166,7 +124,6 @@
   },
   "devDependencies": {
     "babel-eslint": "^8.0.3",
-    "babel-jest": "^22.0.6",
     "babel-loader": "^7.0.0",
     "babel-plugin-transform-react-jsx-source": "^6.22.0",
     "better-npm-run": "^0.1.0",
@@ -188,13 +145,10 @@
     "html-webpack-plugin": "^2.30.1",
     "husky": "^0.14.3",
     "identity-obj-proxy": "^3.0.0",
-    "jest": "^21.1.0",
-    "jest-cli": "^21.1.0",
     "less": "2.7.2",
     "less-loader": "4.1.0",
     "lighthouse": "^2.6.0",
     "lint-staged": "^6.0.0",
-    "mocha": "^4.0.1",
     "node-sass": "^4.7.2",
     "piping": "^1.0.0-rc.4",
     "postcss": "^6.0.9",
@@ -206,12 +160,8 @@
     "postcss-url": "^7.3.0",
     "prettier-eslint-cli": "^4.4.2",
     "react-a11y": "^1.0.0",
-    "react-addons-test-utils": "^15.4.2",
     "react-hot-loader": "^3.1.2",
     "react-to-html-webpack-plugin": "^2.2.0",
-    "redux-devtools": "^3.3.2",
-    "redux-devtools-dock-monitor": "^1.1.1",
-    "redux-devtools-log-monitor": "^1.2.0",
     "resolve-url-loader": "^2.0.2",
     "sass-loader": "^6.0.1",
     "sinon": "^4.0.1",

@@ -58,7 +58,6 @@ module.exports = {
       'babel-runtime/regenerator/index',
       // </babel-runtime>
 
-      'axios',
       'multireducer',
       'react',
       'react-dom',
