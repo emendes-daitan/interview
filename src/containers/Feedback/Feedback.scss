@@ -1,0 +1,20 @@
+@import '../../components/global';
+
+button.button:global(.button) {
+  @include button();
+}
+.container > h1 {
+  font-size: $font-size-medium;
+}
+
+@media #{$tablets} {
+  .container > h1{
+    font-size: $font-size-regular;
+  }
+}
+
+@media #{$smartphones} {
+  .container > h1{
+    font-size: $font-size-small;
+  }
+}

@@ -1,0 +1,12 @@
+@import '../global';
+.text{
+  font-size: $font-size-large;
+  text-align: center;
+  color: $color-primary;
+}
+
+@media #{$tablets} {
+  .text{
+    font-size: $font-size-medium;
+  }
+}

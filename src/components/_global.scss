@@ -1,0 +1,26 @@
+$smartphones: "only screen and (max-width: 600px)";
+$tablets: "only screen and (max-width: 959px)";
+
+$color-primary: blue;
+$color-secundary: #333;
+$font-size-large: 36px;
+$font-size-medium: 28px;
+$font-size-regular: 20px;
+$font-size-small: 16px;
+
+
+@mixin button() {
+  margin: $font-size-medium;
+  display: inline-block;
+  
+  @media #{$tablets} {
+    margin: $font-size-regular;
+  }
+  
+  @media #{$smartphones} {
+    display: block;
+    width: 100%;
+    margin: 0;
+    margin-top: 20px;
+  }
+}

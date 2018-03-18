@@ -1,0 +1,19 @@
+@import '../global';
+
+.list {
+  padding: 0;
+  margin: 0;
+}
+
+.button {
+  list-style: none;  
+  display: inline-block;
+
+  @media #{$smartphones} {
+    display: block;
+  }
+
+  button:global(.button) {
+    @include button();
+  }
+}
